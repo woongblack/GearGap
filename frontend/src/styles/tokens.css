@@ -1,0 +1,18 @@
+:root {
+  --bg-deep: oklch(0.16 0.012 60);
+  --bg: oklch(0.19 0.012 60);
+  --panel: oklch(0.225 0.014 65);
+  --panel-2: oklch(0.26 0.015 65);
+  --border: oklch(0.34 0.014 65);
+  --border-soft: oklch(0.28 0.012 65);
+  --text: oklch(0.94 0.012 80);
+  --text-dim: oklch(0.72 0.014 75);
+  --text-mute: oklch(0.55 0.012 70);
+  --gold: oklch(0.80 0.135 78);
+  --gold-deep: oklch(0.66 0.13 65);
+  --gold-soft: oklch(0.45 0.08 70);
+  --crimson: oklch(0.62 0.16 25);
+  --jade: oklch(0.66 0.10 160);
+  --steel: oklch(0.66 0.08 230);
+  --violet: oklch(0.66 0.13 300);
+}
