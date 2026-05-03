@@ -34,3 +34,7 @@ backend/.pytest_cache/
 
 # Claude Code
 .claude/
+
+# Markdown (README.md 제외)
+*.md
+!README.md
