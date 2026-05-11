@@ -1,11 +1,3 @@
-from fastapi import FastAPI
-
-app = FastAPI(title="GearGap API")
-
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the GearGap API"}
-
-@app.get("/api/health")
-def health_check():
-    return {"status": "ok"}
+# Entry point for local development: uvicorn main:app --reload
+# Production (Cloud Run): uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}
+from app.main import app  # noqa: F401
