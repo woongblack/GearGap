@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ci:*)",
+      "Bash(uvicorn:*)",
+      "Bash(pip install:*)",
+      "Bash(pip list:*)",
+      "Bash(python -m venv:*)",
+      "Bash(python -c:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(find . -name:*)",
+      "Bash(ls:*)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS": 100000,
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": 80
+  },
+  "effortLevel": "high"
+}
