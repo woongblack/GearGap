@@ -25,7 +25,6 @@ backend/
 │   │       ├── router.py         # APIRouter 집합
 │   │       └── routes/
 │   │           ├── characters.py # GET /api/v1/characters/{realm}/{name}
-│   │           ├── efficiency.py # GET /api/v1/efficiency/{character_id}
 │   │           └── admin.py      # POST /api/v1/admin/seed/patch
 │   ├── core/
 │   │   ├── config.py             # pydantic-settings (Settings)
@@ -34,19 +33,20 @@ backend/
 │   │   ├── patch.py              # PATCH_VERSIONS
 │   │   ├── character.py          # CHARACTERS, CHARACTER_EQUIPMENT, CHARACTER_STATS
 │   │   ├── meta.py               # CLASSES, SPECS
-│   │   ├── item.py               # ITEMS, CONTENTS, DROP_SOURCES
-│   │   └── simulation.py         # SIMULATION_RESULTS
+│   │   └── item.py               # ITEMS, CONTENTS, DROP_SOURCES
 │   ├── schemas/
-│   │   ├── character.py          # CharacterPublic (response)
-│   │   └── efficiency.py         # EfficiencyResponse, EvidenceDetail, WeightParams
+│   │   └── character.py          # CharacterPublic (response)
 │   ├── services/
 │   │   ├── blizzard.py           # Blizzard API client (OAuth + 캐릭터 조회)
-│   │   └── efficiency.py         # 효율 점수 계산 엔진
+│   │   └── murlok.py             # MurlokScraper (BiSDataSource MVP 구현체)
 │   └── repositories/
 │       └── character_repo.py     # get_cached_character, upsert_character
 ├── alembic/
 │   ├── env.py
+│   ├── script.py.mako
 │   └── versions/
+├── data/                         # smoke test 결과 등 로컬 데이터
+├── scripts/                      # PoC + 검증 스크립트
 ├── tests/
 ├── main.py                       # uvicorn main:app 로컬 진입점
 ├── Dockerfile
@@ -65,6 +65,14 @@ backend/
 - realm slug 매핑 별도 파일로 관리 (`realms.py`)
 - 한국 API 엔드포인트: `https://kr.api.blizzard.com`, `namespace: profile-kr`, `locale: ko_KR`
 
+## Murlok 크롤링
+
+- `services/murlok.py` — `MurlokScraper` (BiSDataSource Protocol 구현체)
+- 갱신 주기: 1일 1회, 스펙 간 `asyncio.sleep(10)` 적용
+- User-Agent: `GearGap/0.1 (contact: woongblack123@gmail.com)`
+- 결과는 `SPEC_SLOT_ITEM_POPULARITY` 테이블에 upsert
+- Post-MVP: `WarcraftLogsAggregator`로 교체 가능 (BiSDataSource Protocol 동일)
+
 ## 보안
 
 - secrets은 환경 변수로만 관리 (`.env` 파일에 직접 작성 금지, 프로덕션은 GCP Secret Manager)
@@ -74,10 +82,10 @@ backend/
 ## 환경 변수
 
 ```
-DATABASE_URL        # Supabase connection string
+DATABASE_URL        # 개발: sqlite:///./geargap_dev.db / 프로덕션: Supabase PostgreSQL
 BLIZZARD_CLIENT_ID
 BLIZZARD_CLIENT_SECRET
-CLAUDE_API_KEY      # Phase 2
+ANTHROPIC_API_KEY   # Phase 2
 ```
 
 ## 에러 응답 형식

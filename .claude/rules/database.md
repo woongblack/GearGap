@@ -1,13 +1,19 @@
-# Database 기준 (PostgreSQL / Supabase)
+# Database 기준 (PostgreSQL / Supabase → 개발 중 SQLite)
 
-## ERD 개요 — 10개 테이블 (Phase 1)
+## 개발 환경
+
+- 개발: SQLite (`backend/geargap_dev.db`) — `DATABASE_URL=sqlite:///./geargap_dev.db`
+- 프로덕션: Supabase PostgreSQL (Phase 1 완료 후 전환)
+- 마이그레이션: Alembic (`backend/alembic/versions/`)
+
+## ERD 개요
 
 ```
 패치 관리:   PATCH_VERSIONS
 캐릭터:      CHARACTERS, CHARACTER_EQUIPMENT, CHARACTER_STATS
 메타:        CLASSES, SPECS
-정적 데이터: ITEMS, CONTENTS, DROP_SOURCES   ← patch_version + is_active
-시뮬:        SIMULATION_RESULTS              ← patch_version + is_latest
+정적 데이터: ITEMS, CONTENTS, DROP_SOURCES      ← patch_version + is_active
+BiS 데이터:  SPEC_SLOT_ITEM_POPULARITY           ← Murlok 크롤링 결과
 ```
 
 ## 핵심 패턴
@@ -18,31 +24,52 @@
 - 현재 패치 데이터: `is_active = true`
 - 이전 패치 데이터: `is_active = false` (보존, 삭제 금지 — 검증/디버깅용)
 
-### is_active vs is_latest 구분
-
-- `is_active`: 패치 단위 활성 여부 (ITEMS, CONTENTS, DROP_SOURCES)
-- `is_latest`: 동일 패치 내 최신 시뮬 여부 (SIMULATION_RESULTS만)
-- 혼용 금지 — 의미가 다름
-
 ### 캐릭터 캐싱
 
 - `last_synced_at` 기준 10분 이내 → DB 반환 (Blizzard API 호출 생략)
 - CHARACTERS는 `patch_version` 없음 (캐릭터는 항상 최신 상태 추적)
 
-## 효율 점수 쿼리 흐름
+### SPEC_SLOT_ITEM_POPULARITY 패턴
+
+- `scraped_at` 기준 1일 1회 갱신 (Murlok 크롤링)
+- `(class_name, spec_name, content_type, slot)` 조합으로 조회
+- `total_sample` 항상 50 (Murlok 기준)
+
+## v0.6 핵심 쿼리 패턴
 
 ```sql
+-- 슬롯별 BiS 후보 조회 (특정 스펙)
+SELECT slot, item_name, item_id, count, total_sample
+FROM spec_slot_item_popularity
+WHERE class_name = 'warlock'
+  AND spec_name = 'destruction'
+  AND content_type = 'mythic-plus'
+ORDER BY slot, count DESC;
+
+-- 내 장비 vs BiS 갭 (LEFT JOIN)
+SELECT
+    eq.slot,
+    eq.item_id        AS my_item_id,
+    bis.item_name     AS bis_item_name,
+    bis.item_id       AS bis_item_id,
+    bis.count         AS bis_count,
+    bis.total_sample
+FROM character_equipment eq
+LEFT JOIN spec_slot_item_popularity bis
+    ON bis.slot = eq.slot
+    AND bis.class_name = 'warlock'
+    AND bis.spec_name = 'destruction'
+    AND bis.content_type = 'mythic-plus'
+WHERE eq.character_id = ?
+  AND eq.item_id != bis.item_id   -- 이미 BiS 착용 중이면 제외
+ORDER BY bis.count DESC;
+
 -- 활성 아이템 조회
-WHERE patch_version = '11.1.5' AND is_active = true
-
--- 최신 시뮬 결과
-WHERE spec_id = ? AND item_id = ? AND is_latest = true
-
--- 효율 점수 계산 (Python에서)
-score = (dps_gain * w_dps) / (avg_clear_minutes * w_time) * (drop_rate * w_prob)
+SELECT id, name, slot FROM items
+WHERE patch_version = '11.1.5' AND is_active = true;
 ```
 
-## Supabase 설정
+## Supabase 설정 (Phase 1 이후)
 
 - pgvector 익스텐션 활성화 (Phase 2 RAG 대비)
 - Connection Pooler 사용 (Cloud Run 잦은 연결 대응)
@@ -52,7 +79,7 @@ score = (dps_gain * w_dps) / (avg_clear_minutes * w_time) * (drop_rate * w_prob)
 
 - Alembic 사용
 - 마이그레이션 파일은 `backend/alembic/versions/` 에 보관
-- 프로덕션 마이그레이션 전 반드시 로컬 검증
+- 프로덕션 마이그레이션 전 반드시 로컬(SQLite) 검증
 
 ## 시드 데이터 구조
 
@@ -73,5 +100,5 @@ backend/seeds/
 ## 금지 패턴
 
 - `SELECT *` 사용 금지
-- `is_active`/`is_latest` 없이 정적 데이터/시뮬 데이터 조회 금지
+- `is_active` 없이 정적 데이터 조회 금지
 - 시드 데이터를 DB에 직접 수동 편집하지 않고 반드시 JSON 파일 → 시드 스크립트 경유
