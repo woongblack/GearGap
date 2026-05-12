@@ -1,7 +1,6 @@
-from decimal import Decimal
 from typing import Any, Optional
 
-from sqlalchemy import JSON, Numeric
+from sqlalchemy import JSON
 from sqlalchemy import Column as SAColumn
 from sqlmodel import Field, SQLModel
 
@@ -27,10 +26,8 @@ class Content(SQLModel, table=True):
     type: str                           # "raid" | "mythic_plus"
     name_kr: str                        # e.g. "한밤의 요새"
     difficulty: str                     # "normal" | "heroic" | "mythic" | "M+10"
-    avg_clear_minutes: int              # Time Cost 분자 — 효율 점수 계산에 사용
     patch_version: str = Field(foreign_key="patch_versions.version")
     is_active: bool = True
-    source: str = "raider.io"
 
 
 class DropSource(SQLModel, table=True):
@@ -40,7 +37,6 @@ class DropSource(SQLModel, table=True):
     item_id: int = Field(foreign_key="items.id")
     content_id: int = Field(foreign_key="contents.id")
     boss_name: Optional[str] = None
-    drop_rate: Decimal = Field(sa_column=SAColumn(Numeric(precision=6, scale=4)))  # Drop Probability
     item_level: Optional[int] = None
     patch_version: str = Field(foreign_key="patch_versions.version")
     is_active: bool = True

@@ -10,7 +10,7 @@ engine = create_engine(str(settings.DATABASE_URL))
 def init_db() -> None:
     # Tables are created via Alembic migrations.
     # This import ensures all models are registered before metadata is used.
-    from app.models import character, item, meta, patch, simulation  # noqa: F401
+    from app.models import character, item, meta, patch  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
 

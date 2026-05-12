@@ -31,6 +31,7 @@ __pycache__/
 backend/venv/
 backend/.env
 backend/.pytest_cache/
+backend/*.db
 
 # Claude Code (로컬 설정만 제외, rules/settings.json은 추적)
 .claude/settings.local.json
