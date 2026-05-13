@@ -7,7 +7,7 @@ from sqlmodel import SQLModel
 from app.core.config import settings
 
 # Import all models so Alembic can detect them
-from app.models import character, item, meta, patch  # noqa: F401
+from app.models import character, item, meta, patch, popularity  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
