@@ -29,16 +29,21 @@ backend/
 │   ├── core/
 │   │   ├── config.py             # pydantic-settings (Settings)
 │   │   └── db.py                 # SQLModel engine + get_session
+│   ├── constants/
+│   │   └── specs.py              # DPS_SPECS 26개 SSoT
 │   ├── models/
 │   │   ├── patch.py              # PATCH_VERSIONS
 │   │   ├── character.py          # CHARACTERS, CHARACTER_EQUIPMENT, CHARACTER_STATS
 │   │   ├── meta.py               # CLASSES, SPECS
-│   │   └── item.py               # ITEMS, CONTENTS, DROP_SOURCES
+│   │   ├── item.py               # ITEMS, CONTENTS, DROP_SOURCES
+│   │   └── popularity.py         # SPEC_SLOT_ITEM_POPULARITY
 │   ├── schemas/
 │   │   └── character.py          # CharacterPublic (response)
 │   ├── services/
 │   │   ├── blizzard.py           # Blizzard API client (OAuth + 캐릭터 조회)
 │   │   └── murlok.py             # MurlokScraper (BiSDataSource MVP 구현체)
+│   ├── workers/
+│   │   └── murlok_ingestion.py   # ingest_all_specs, ingest_single_spec, IngestionResult
 │   └── repositories/
 │       └── character_repo.py     # get_cached_character, upsert_character
 ├── alembic/
@@ -46,7 +51,7 @@ backend/
 │   ├── script.py.mako
 │   └── versions/
 ├── data/                         # smoke test 결과 등 로컬 데이터
-├── scripts/                      # PoC + 검증 스크립트
+├── scripts/                      # PoC/검증 스크립트 + 운영 CLI (run_murlok_ingestion.py)
 ├── tests/
 ├── main.py                       # uvicorn main:app 로컬 진입점
 ├── Dockerfile

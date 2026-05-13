@@ -34,6 +34,10 @@ BiS 데이터:  SPEC_SLOT_ITEM_POPULARITY           ← Murlok 크롤링 결과
 - `scraped_at` 기준 1일 1회 갱신 (Murlok 크롤링)
 - `(class_name, spec_name, content_type, slot)` 조합으로 조회
 - `total_sample` 항상 50 (Murlok 기준)
+- upsert 전략: **delete-and-insert (스펙 단위 트랜잭션)**
+  - `BEGIN → DELETE WHERE (class, spec, content_type) → INSERT → COMMIT`
+  - 26 스펙 통째로 트랜잭션 금지 (락 너무 김) — 스펙 1개 = 1 트랜잭션
+- `scraped_at`: 워커 사이클 시작 시각(`sync_start`)으로 전 행 통일 — MurlokScraper 내부 값 무시
 
 ## v0.6 핵심 쿼리 패턴
 
