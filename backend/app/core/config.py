@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     BLIZZARD_CLIENT_SECRET: str = ""
     BLIZZARD_REGION: str = "kr"
     BLIZZARD_NAMESPACE: str = "profile-kr"
-    BLIZZARD_LOCALE: str = "ko_KR"
+    BLIZZARD_LOCALE: str = "en_US"
 
     # Character cache TTL (seconds)
     CHARACTER_CACHE_TTL: int = 600  # 10 minutes

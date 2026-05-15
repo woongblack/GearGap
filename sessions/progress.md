@@ -1,55 +1,79 @@
-## 2026-05-15 — 세션 3 완료 ✅
+## 2026-05-16 — 세션 5 완료 ✅
 
 ### 상태
-세션 3 전체 완료. 설계/스키마/구현/데이터 적재 모두 끝.
+Roadmap API 엔드포인트 완성. Blizzard API 연동 + 캐싱 + 에러 표준화.
 
-### 완료된 것
-- PoC × 3 (instances.json / equippable-items.json / 매핑 검증)
-- 결정 1~4 확정 (Items 적재 범위 / soft-delete / 스키마 / inventoryType 매핑)
-- 마이그레이션 #3 (encounters 신설, content/dropsource 리팩터)
-  - alembic head: 50a67e541212
-- inventory_types.py (inventoryType→Slot, quality 매핑)
-- patch_versions INSERT: version=12.0.5 (Midnight Season 1, 2026-04-21)
-- raidbots_fetcher.py + raidbots_ingestion.py + run_raidbots_ingestion.py
-- Raidbots ingestion 실행 완료
-
-### DB 적재 결과 (2026-05-15 기준)
-| 테이블 | 행 수 |
-|--------|------|
-| patch_versions | 1 (version=12.0.5) |
-| contents | 16 |
-| encounters | 56 |
-| items | 432 |
-| drop_sources | 447 (items 432 + 월드 보스 중복 15) |
-| spec_slot_item_popularity | 1,449 |
+### 산출물
+- GET /api/v1/characters/{realm}/{name}/roadmap
+  - query: content_type (Literal["mythic-plus"]), spec_name (Optional)
+  - Blizzard API miss → profile + equipment 조회 + DB upsert
+  - 캐시 히트 → DB 반환 (Blizzard 호출 생략)
+  - 비DPS 스펙 → 404, Blizzard 타임아웃 → 502
+- COALESCE 버그 수정 (roadmap_repo.py:34)
+  - `COALESCE(i.name, ce.item_name)` — items 테이블 미존재 시 Blizzard 이름으로 폴백
+- alembic head: 004b09dd9606 (drop item_id FK, add item_name to character_equipment)
 
 ### 끝나는 신호 달성
-```
-[15/50] 'Gaze of the Alnseer'      → The Dreamrift / Chimaerus the Undreamt God
-[10/50] 'Vaelgor's Final Stare'    → The Voidspire / Vaelgor & Ezzorak
-[7/50]  'Heart of Wind'            → Windrunner Spire / The Restless Heart
-[4/50]  'Emberwing Feather'        → Windrunner Spire / Emberdawn
-[4/50]  "Locus-Walker's Ribbon"    → The Voidspire / Crown of the Cosmos
-```
+- 4개 테스트 전부 통과
+  1. 첫 번째 호출 (Blizzard API miss): 4407ms, slots=14, my_item_name 14/14 filled ✅
+  2. 두 번째 호출 (캐시 히트): 2130ms ✅
+  3. 잘못된 content_type=invalid → 422 ✅
+  4. COALESCE 수정 후 재검증: my_item_name null=0 ✅
 
-### 검증 사항
-- drop_sources 447 vs items 432 차이 15 = 월드 보스 5개 아이템 × 4넴드 → 정상
-- UniqueConstraint(item_id, encounter_id) 위반 없음
+### 핵심 결정
+- is_bis=False 전부 → 정상 동작
+  * BiS DB: 12.x 패치 아이템 (Abyssal Immolator's 세트 등, item_id 25xxxx)
+  * 캐릭터 장비: 11.x 시즌 아이템 → 매칭 없음
+- 캐싱 로직: 10분 이내 last_synced_at → Blizzard API 생략
+- spec_name query param: 없으면 active_spec 사용
+
+### 미해결 태스크 (별도, 세션 8 전 처리 필요)
+- 제작템/외부 아이템 186개 보완 (현재 source_type="unknown")
+  * Raidbots crafting.json 또는 Blizzard Game Data API
+  * 완료 기준: ssip BiS 후보 전체가 items 테이블에 존재
+
+### 다음 세션 6 — 프론트엔드 입력+연동
+- LandingScreen → 캐릭터 입력 UI
+- /loading → AnalysisScreen 라우팅
+- /c/{realm}/{name}/roadmap 엔드포인트 연결
+- BiS 갭 대시보드 렌더링
 
 ---
 
-## 세션 4 예정 — RoadmapService
+## 2026-05-XX — 세션 4 완료 ✅
 
-### 목표
-캐릭터 장비(Blizzard API) + BiS(Murlok) + 드롭처(Raidbots) 3-way 조인
+### 상태
+RoadmapService 구현 완료. 함수 호출로 로드맵 JSON 반환.
 
-### 핵심 작업
-1. RoadmapService 설계
-   - 입력: character_id + spec (class_name, spec_name, content_type)
-   - 출력: 슬롯별 {내 장비, BiS 후보, 드롭처 인스턴스/넴드}
-2. API 엔드포인트 연결 (GET /api/v1/characters/{realm}/{name})
-3. 프론트엔드 AnalysisScreen 연동
+### 산출물
+- app/schemas/roadmap.py (4개 스키마)
+- app/repositories/roadmap_repo.py (2개 쿼리)
+- app/services/roadmap.py (get_roadmap + _aggregate_bis)
 
-### 현재 DB 상태
-- alembic head: 50a67e541212
-- 모든 테이블 데이터 적재 완료
+### 끝나는 신호 달성
+get_roadmap(warlock/destruction) → RoadmapOut(slots=14, 12122 bytes)
+7개 검증 전부 통과.
+
+### 핵심 결정
+- is_bis: 전체 후보 1위 기준 (source_type 무관)
+- bis_candidates: 서비스 전체 반환, UI에서 Top N
+- unknown 아이템: 포함 + drop_sources=[]
+- 비DPS 스펙: ValueError → 라우터에서 404 변환
+
+### 미해결 태스크 (세션 8 전 처리 필요)
+- 제작템/외부 아이템 186개 보완 (현재 source_type="unknown")
+  * Raidbots crafting.json 또는 Blizzard Game Data API
+
+### 다음 세션 5 — API 엔드포인트
+GET /api/v1/characters/{region}/{realm}/{name}/roadmap
+Blizzard API 연결 + content_type validation + 에러 표준화
+
+### [별도 태스크 — 제작템/외부 아이템 보완]
+우선순위: Post-세션 4, 세션 8 이전
+내용: Raidbots equippable-items.json 외 소스에서
+     제작 티어셋 등 186개 누락 아이템 적재
+후보 소스:
+  - Raidbots 다른 엔드포인트 (crafting 관련)
+  - Wowhead 아이템 DB
+  - Blizzard Game Data API (item-search)
+완료 기준: ssip BiS 후보 전체가 items 테이블에 존재

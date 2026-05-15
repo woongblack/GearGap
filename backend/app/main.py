@@ -9,9 +9,9 @@ from app.core.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
+    # 모든 SQLModel 테이블 메타데이터 등록 (FK resolve에 필요)
+    from app.models import character, item, meta, patch, popularity  # noqa: F401
     yield
-    # shutdown
 
 
 app = FastAPI(

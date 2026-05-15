@@ -5,6 +5,27 @@ import httpx
 
 from app.core.config import settings
 
+# Blizzard slot type → ssip canonical slot
+# FINGER_1/2 → ring_1/ring_2, TRINKET_1/2 → trinket_1/trinket_2 (이중 슬롯 분리 저장)
+BLIZZARD_SLOT_MAP: dict[str, str] = {
+    "HEAD": "head",
+    "NECK": "neck",
+    "SHOULDER": "shoulders",
+    "BACK": "back",
+    "CHEST": "chest",
+    "WRIST": "wrist",
+    "HANDS": "hands",
+    "WAIST": "waist",
+    "LEGS": "legs",
+    "FEET": "feet",
+    "FINGER_1": "ring_1",
+    "FINGER_2": "ring_2",
+    "TRINKET_1": "trinket_1",
+    "TRINKET_2": "trinket_2",
+    "MAIN_HAND": "main_hand",
+    "OFF_HAND": "off_hand",
+}
+
 _REALM_SLUGS: dict[str, str] = {
     "아즈샤라": "azshara",
     "줄진": "zul-jin",
@@ -49,7 +70,7 @@ async def get_character_profile(realm_slug: str, name: str) -> Optional[dict[str
     token = await _get_access_token()
     url = f"https://{settings.BLIZZARD_REGION}.api.blizzard.com/profile/wow/character/{realm_slug}/{name.lower()}"
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         res = await client.get(
             url,
             headers={"Authorization": f"Bearer {token}"},
@@ -66,7 +87,7 @@ async def get_character_equipment(realm_slug: str, name: str) -> Optional[dict[s
     token = await _get_access_token()
     url = f"https://{settings.BLIZZARD_REGION}.api.blizzard.com/profile/wow/character/{realm_slug}/{name.lower()}/equipment"
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         res = await client.get(
             url,
             headers={"Authorization": f"Bearer {token}"},
@@ -77,3 +98,30 @@ async def get_character_equipment(realm_slug: str, name: str) -> Optional[dict[s
         return None
     res.raise_for_status()
     return res.json()
+
+
+def parse_equipment(equipment_raw: dict[str, Any]) -> list[dict]:
+    """Blizzard equipment API 응답 → character_equipment upsert용 slot dict 리스트."""
+    slots = []
+    for item in equipment_raw.get("equipped_items", []):
+        blizzard_slot = item.get("slot", {}).get("type", "")
+        canonical = BLIZZARD_SLOT_MAP.get(blizzard_slot)
+        if canonical is None:
+            continue  # SHIRT, TABARD 등 ssip에 없는 슬롯 무시
+        slots.append({
+            "slot": canonical,
+            "item_id": item.get("item", {}).get("id"),
+            "item_name": item.get("name"),
+            "item_level": item.get("level", {}).get("value"),
+        })
+    return slots
+
+
+def extract_class_spec(profile: dict[str, Any]) -> tuple[str, str]:
+    """Blizzard profile → (class_name, spec_name) Murlok 슬러그 형식."""
+    class_name = profile.get("character_class", {}).get("name", "")
+    spec_name = profile.get("active_spec", {}).get("name", "")
+    return (
+        class_name.lower().replace(" ", "-"),
+        spec_name.lower().replace(" ", "-"),
+    )
