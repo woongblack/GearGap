@@ -24,8 +24,9 @@ class CharacterEquipment(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     character_id: int = Field(foreign_key="characters.id")
-    slot: str                   # e.g. "head", "trinket1"
-    item_id: Optional[int] = Field(default=None, foreign_key="items.id")
+    slot: str
+    item_id: Optional[int] = Field(default=None)  # FK 제거 — PostgreSQL 전환 시 45% 삽입 실패 방지
+    item_name: Optional[str] = None
     item_level: Optional[int] = None
     bonuses: Optional[Any] = Field(default=None, sa_column=SAColumn(JSON))
     synced_at: Optional[datetime] = None
