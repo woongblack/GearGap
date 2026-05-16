@@ -40,6 +40,7 @@ class Encounter(SQLModel, table=True):
     raidbots_id: int = Field(unique=True)   # instances.json encounter.id
     content_id: int = Field(foreign_key="contents.id")
     name: str                               # e.g. "Forgemaster Garfrost"
+    name_kr: Optional[str] = None
     patch_version: str = Field(foreign_key="patch_versions.version")
     is_active: bool = True
 

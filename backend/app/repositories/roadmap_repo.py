@@ -68,8 +68,8 @@ def get_bis_rows(
                 ssip.total_sample,
                 ssip.scraped_at,
                 CASE WHEN i.id IS NOT NULL THEN 'drop' ELSE 'unknown' END AS source_type,
-                c.name_en      AS instance_name,
-                e.name         AS encounter_name,
+                COALESCE(c.name_kr, c.name_en) AS instance_name,
+                COALESCE(e.name_kr, e.name)   AS encounter_name,
                 ds.item_level  AS drop_item_level
             FROM spec_slot_item_popularity ssip
             LEFT JOIN items i        ON ssip.item_id    = i.id        AND i.is_active  = 1
