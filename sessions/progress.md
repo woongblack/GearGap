@@ -1,3 +1,25 @@
+## 2026-05-17 — 세션 6 완료 ✅
+
+### 상태
+프론트엔드 로드맵 API 연동 완료. 캐릭터명 입력 → 슬롯 갭 테이블 브라우저에서 확인.
+
+### 산출물
+- `api/types.ts`: v0.5 타입 제거, 로드맵 타입 4개 추가 (ApiRoadmapOut 등)
+- `api/client.ts`: getRoadmap(realm, name, contentType?) 추가
+- `App.tsx`: LoadingScreenWrapper — getRoadmap() 호출, 성공 시 state 전달, 실패 시 /errors
+- `AnalysisScreen.tsx`: location.state.roadmap 읽기, 슬롯 갭 테이블 렌더링 (갭 슬롯 우선, BiS 슬롯 하단)
+
+### 끝나는 신호 달성
+캐릭터명 입력 → LoadingScreen 애니메이션 → AnalysisScreen 슬롯 갭 테이블 표시 ✅
+
+### 다음 세션 7 — 디자인
+- AnalysisScreen 슬롯 갭 테이블 시각 디자인
+- CharHeader 컴포넌트 연동 (roadmap → CharProfile 매핑)
+- 슬롯별 갭 강조 (BiS vs 갭 시각 구분)
+- 드롭처 레이아웃 정리
+
+---
+
 ## 2026-05-16 — 세션 5 완료 ✅
 
 ### 상태
@@ -77,3 +99,10 @@ Blizzard API 연결 + content_type validation + 에러 표준화
   - Wowhead 아이템 DB
   - Blizzard Game Data API (item-search)
 완료 기준: ssip BiS 후보 전체가 items 테이블에 존재
+
+세션 8 배포 구성 (확정):
+- 프론트: Vercel
+- 백엔드: Render (무료, 콜드 스타트 감수)
+- DB: Supabase (Postgres)
+- 크론: GitHub Actions (Murlok ingestion 1일 1회 + Render keep-alive)
+- 비용: $0/월

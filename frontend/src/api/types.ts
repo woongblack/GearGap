@@ -11,44 +11,37 @@ export interface ApiCharacter {
   from_cache: boolean;
 }
 
-export interface ApiWeights {
-  w_dps: number;
-  w_time: number;
-  w_prob: number;
+export interface ApiDropSourceOut {
+  instance_name: string;
+  encounter_name: string;
+  item_level: number | null;
 }
 
-export interface ApiEvidence {
-  dps_gain: number;
-  dps_source: string;       // e.g. "bloodmallet"
-  dps_sim_date: string;
-  dps_sim_profile: string;  // e.g. "patchwerk" → UI: "⚠️ 패치워크 기준"
-  avg_clear_minutes: number;
-  time_source: string;
-  drop_rate: number;
-  drop_source: string;
-  formula: string;
-}
-
-export interface ApiCandidate {
-  content_id: number;
-  content_name: string;
-  content_type: 'raid' | 'mythic_plus';
-  difficulty: string;
+export interface ApiBisCandidateOut {
   item_id: number;
   item_name: string;
-  item_name_kr: string | null;
-  slot: string;
-  boss_name: string | null;
-  efficiency_score: number;
-  evidence: ApiEvidence;
+  count: number;
+  total_sample: number;
+  source_type: 'drop' | 'unknown';
+  drop_sources: ApiDropSourceOut[];
 }
 
-export interface ApiEfficiencyResponse {
-  character_name: string;
+export interface ApiSlotRoadmapOut {
+  slot: string;
+  my_item_id: number | null;
+  my_item_name: string | null;
+  my_item_level: number | null;
+  is_bis: boolean;
+  bis_candidates: ApiBisCandidateOut[];
+}
+
+export interface ApiRoadmapOut {
+  character_id: number;
+  class_name: string;
   spec_name: string;
-  patch_version: string;
-  weights: ApiWeights;
-  candidates: ApiCandidate[];
+  content_type: string;
+  scraped_at: string | null;
+  slots: ApiSlotRoadmapOut[];
 }
 
 export interface ApiError {

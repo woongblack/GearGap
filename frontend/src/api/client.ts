@@ -1,4 +1,4 @@
-import type { ApiCharacter, ApiEfficiencyResponse } from './types';
+import type { ApiCharacter, ApiRoadmapOut } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
@@ -17,17 +17,11 @@ export const api = {
     return request<ApiCharacter>(`/api/v1/characters/${encodeURIComponent(realm)}/${encodeURIComponent(name)}`);
   },
 
-  /** 효율 점수 후보 목록 — 가중치 파라미터로 실시간 재계산 */
-  getEfficiency(
-    characterId: number,
-    weights: { w_dps: number; w_time: number; w_prob: number },
-  ): Promise<ApiEfficiencyResponse> {
-    const params = new URLSearchParams({
-      w_dps: String(weights.w_dps),
-      w_time: String(weights.w_time),
-      w_prob: String(weights.w_prob),
-    });
-    return request<ApiEfficiencyResponse>(`/api/v1/efficiency/${characterId}?${params}`);
+  /** 장비 갭 로드맵 — 슬롯별 BiS 후보 + 드롭처 */
+  getRoadmap(realm: string, name: string, contentType = 'mythic-plus'): Promise<ApiRoadmapOut> {
+    return request<ApiRoadmapOut>(
+      `/api/v1/characters/${encodeURIComponent(realm)}/${encodeURIComponent(name)}/roadmap?content_type=${encodeURIComponent(contentType)}`,
+    );
   },
 
   health(): Promise<{ status: string }> {
