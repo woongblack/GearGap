@@ -1020,3 +1020,322 @@
   .char-header { grid-template-columns: 1fr; }
   .ch-score { padding-left: 0; border-left: none; border-top: 1px solid var(--border-soft); padding-top: 16px; text-align: left; }
 }
+
+/* ─────────────────────────────────────────────────
+   Slot Gap Table — AnalysisScreen
+   ───────────────────────────────────────────────── */
+
+/* Page meta row (class · spec · content type · hint) */
+.analysis-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.meta-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  padding: 3px 9px;
+  border-radius: 2px;
+}
+.meta-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--text-mute);
+}
+
+/* Summary bar (갭 슬롯 N / 전체 N슬롯) */
+.analysis-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 22px 0 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.summary-gap { color: var(--text-dim); }
+.summary-gap strong {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0;
+  margin-right: 3px;
+}
+.summary-sep { color: var(--text-mute); }
+.summary-total { color: var(--text-mute); }
+
+/* Table wrapper */
+.slot-table-wrap { overflow-x: auto; }
+
+.slot-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Header row */
+.slot-table thead th {
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 500;
+  padding: 10px 14px;
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* 슬롯 10% | 내 장비 25% | BiS 후보 40% | 드롭처 25% */
+.slot-table thead th:first-child  { padding-left: 22px; width: 10%; }
+.slot-table thead th:nth-child(2) { width: 25%; }
+.slot-table thead th:nth-child(3) { width: 40%; }
+.slot-table thead th:last-child   { width: 25%; }
+
+/* Body rows */
+.slot-table tbody tr {
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.12s;
+}
+.slot-table tbody tr:last-child { border-bottom: none; }
+
+/* Gap row — gold left accent + faint warm tint */
+tr.slot-row-gap {
+  border-left: 3px solid var(--gold);
+  background: oklch(0.66 0.13 65 / 0.025);
+}
+tr.slot-row-gap:hover { background: oklch(0.66 0.13 65 / 0.07); }
+
+/* BiS row — no accent, dimmed */
+tr.slot-row-bis {
+  border-left: 3px solid transparent;
+  opacity: 0.48;
+}
+tr.slot-row-bis:hover { opacity: 0.72; }
+
+.slot-table tbody td {
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+  vertical-align: middle;
+}
+
+/* Slot name column */
+.col-slot {
+  padding-left: 22px !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+tr.slot-row-gap .col-slot { color: var(--gold); }
+
+.bis-check {
+  color: var(--jade);
+  margin-right: 7px;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.row-chevron {
+  display: inline-block;
+  margin-left: 7px;
+  font-size: 12px;
+  color: var(--text-mute);
+  transform: rotate(0deg);
+  transition: transform 0.18s ease, color 0.15s;
+  line-height: 1;
+}
+.row-chevron.open {
+  transform: rotate(90deg);
+  color: var(--gold);
+}
+tr.slot-row-gap .row-chevron { color: var(--gold-deep); }
+tr.slot-row-gap .row-chevron.open { color: var(--gold); }
+
+/* Clickable rows */
+.slot-table tbody tr.slot-row-gap,
+.slot-table tbody tr.slot-row-bis {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* My item column */
+.col-my { color: var(--text); }
+.col-my .ilvl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+.col-my .empty,
+.col-bis .empty {
+  color: var(--text-mute);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* BiS candidate column */
+.col-bis {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* Wear rate column */
+.col-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* BiS candidate list column */
+.col-bis-list {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.bis-candidate {
+  padding: 3px 0 5px;
+}
+.bis-candidate + .bis-candidate {
+  border-top: 1px solid var(--border-soft);
+  margin-top: 4px;
+  padding-top: 6px;
+  opacity: 0.6;
+}
+.bis-cand-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-dim);
+  text-decoration: none;
+  margin-bottom: 5px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bis-cand-name span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bis-cand-name:hover { color: var(--gold); text-decoration: underline; }
+.bis-candidate.is-top .bis-cand-name {
+  color: var(--gold);
+  font-weight: 500;
+}
+.bis-candidate.is-top .bis-cand-name:hover { opacity: 0.8; }
+
+.item-icon-img {
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+  flex-shrink: 0;
+  display: block;
+}
+.bis-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bis-bar-track {
+  width: 100px;
+  height: 4px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-soft);
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.bis-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+  border-radius: 1px;
+}
+.bis-candidate:not(.is-top) .bis-bar-fill {
+  background: var(--text-mute);
+}
+.bis-bar-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-mute);
+  min-width: 30px;
+}
+.bis-candidate.is-top .bis-bar-pct { color: var(--gold); }
+
+/* Drop source column + chips */
+.col-src {
+  vertical-align: top !important;
+  padding-top: 13px !important;
+  overflow: hidden;
+}
+.src-chip {
+  display: inline-flex;
+  flex-direction: column;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  padding: 4px 8px;
+  border-radius: 2px;
+  margin: 2px 3px 2px 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.src-instance {
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.src-encounter {
+  color: var(--text-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.src-chip.src-unknown {
+  flex-direction: row;
+  color: var(--steel);
+  border-color: oklch(0.66 0.08 230 / 0.4);
+  background: oklch(0.66 0.08 230 / 0.06);
+}
+
+/* Divider row (BiS section separator) */
+tr.divider-row td {
+  text-align: center;
+  padding: 7px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  background: var(--bg-deep);
+  opacity: 1 !important;
+}
+
+@media (max-width: 860px) {
+  .slot-table thead th:last-child,
+  .col-src { display: none; }
+  .bis-cand-name { max-width: 200px; }
+}

@@ -20,6 +20,7 @@ export interface ApiDropSourceOut {
 export interface ApiBisCandidateOut {
   item_id: number;
   item_name: string;
+  icon_url: string | null;
   count: number;
   total_sample: number;
   source_type: 'drop' | 'unknown';
