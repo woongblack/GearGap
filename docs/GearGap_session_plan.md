@@ -242,6 +242,36 @@ HTTP로 로드맵 조회 가능.
 - Backend: Render (또는 GCP Cloud Run)
 - DB: Supabase (SQLite → PostgreSQL 마이그레이션)
 
+### 배포 체크리스트 (순서 엄수)
+
+#### 1단계: Supabase 셋업
+- [ ] Supabase 프로젝트 생성
+- [ ] DATABASE_URL → Supabase connection string으로 교체
+- [ ] `alembic upgrade head` (Postgres 대상)
+
+#### 2단계: 데이터 재적재 (순서 중요)
+- [ ] `run_raidbots_ingestion.py` — contents / encounters / items / drop_sources
+- [ ] `run_murlok_ingestion.py` — spec_slot_item_popularity 1,449행
+- [ ] `fetch_item_icons.py` — icon_url 432개 (~2분, Blizzard API)
+- [ ] `seed_content_name_kr.py` — 던전/레이드 한글명 15개
+- [ ] `seed_encounter_name_kr.py` — 레이드 넴드 한글명 9개
+- [ ] patch_versions 수동 INSERT (11.1.5 또는 현재 패치)
+
+> ⚠️ SQLite(geargap_dev.db)는 로컬 전용. Supabase 전환 시 모든 데이터 재적재 필수.
+
+#### 3단계: 서비스 배포
+- [ ] Render — FastAPI 서비스 (Dockerfile 있음)
+- [ ] Vercel — 프론트엔드 (VITE_API_URL 환경변수 설정)
+- [ ] CORS — allow_origins에 geargap.app + vercel.app 추가 확인
+
+#### 4단계: 자동화
+- [ ] GitHub Actions 크론: Murlok ingestion 1일 1회
+- [ ] Render keep-alive ping 14분마다 (무료 플랜 sleep 방지)
+
+#### 5단계: 검증
+- [ ] 본인 캐릭터로 End-to-End 검증 (검색 → 아이콘 → 드롭처 한글명)
+- [ ] 배포 URL 공유 가능 상태 확인
+
 ### 작업
 1. **백엔드 배포**
    - 호스팅 선택 (Railway / Fly.io / Render / 직접 서버)
