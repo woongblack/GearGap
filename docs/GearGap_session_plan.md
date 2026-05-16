@@ -213,12 +213,22 @@ HTTP로 로드맵 조회 가능.
 ### 커밋
 - e5bf198: feat(backend): add icon_url to items, fetch from Blizzard media API
 - dee99da: feat(frontend): slot gap table design, item icons, dropsource layout
+- 81b3670: feat(i18n): Korean localization for dungeons, raids, and encounter names
+
+### 한글화 범위
+- contents.name_kr: 레이드 4개 + 던전 11개 (15개)
+- encounters.name_kr: 레이드 넴드 9개 (The Voidspire 6 + The Dreamrift 1 + March on Quel'Danas 2)
+- RoadmapService: COALESCE(name_kr, name_en) 적용 → 한글 우선, 영문 폴백
+- 던전 넴드 한글화: 미완 (인게임 확인 후 seed_encounter_name_kr.py에 추가)
+- 아이템명 한글화: 별도 태스크 (배포 후 진행)
+- Alembic migration #6 (b7d4c2e91a05): encounters.name_kr 컬럼 추가
 
 ### 끝나는 신호
-아이콘 + 드롭처 레이아웃 정상 표시. ✅
+드롭처 칩 한글 인스턴스명 + 레이드 넴드 한글명 정상 표시. ✅
 
 ### 미해결 → 해결됨
 - Wowhead widget 인라인 아이콘 → Blizzard API fetch로 완전 해결 ✅
+- 가로 스크롤 → table-layout: fixed + 컬럼 비율 + ellipsis 해결 ✅
 
 ---
 
@@ -226,6 +236,11 @@ HTTP로 로드맵 조회 가능.
 
 ### 목표
 실제 사용자(우선 본인)가 인터넷으로 접근 가능.
+
+### 배포 스택 (확정)
+- Frontend: Vercel
+- Backend: Render (또는 GCP Cloud Run)
+- DB: Supabase (SQLite → PostgreSQL 마이그레이션)
 
 ### 작업
 1. **백엔드 배포**
