@@ -16,6 +16,7 @@ class Item(SQLModel, table=True):
     quality: str                        # "epic" | "rare"
     patch_version: str = Field(foreign_key="patch_versions.version")
     is_active: bool = True
+    icon_url: Optional[str] = None
     wowhead_raw: Optional[Any] = Field(default=None, sa_column=SAColumn(JSON))
 
 

@@ -19,6 +19,7 @@ class BisRow:
     slot: str
     item_id: int
     item_name: str
+    icon_url: Optional[str]
     count: int
     total_sample: int
     scraped_at: Optional[datetime]
@@ -62,6 +63,7 @@ def get_bis_rows(
                 ssip.slot,
                 ssip.item_id,
                 COALESCE(i.name, ssip.item_name) AS item_name,
+                i.icon_url,
                 ssip.count,
                 ssip.total_sample,
                 ssip.scraped_at,
@@ -91,6 +93,7 @@ def get_bis_rows(
             slot=row.slot,
             item_id=row.item_id,
             item_name=row.item_name,
+            icon_url=row.icon_url,
             count=row.count,
             total_sample=row.total_sample,
             scraped_at=row.scraped_at,

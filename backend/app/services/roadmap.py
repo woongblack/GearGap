@@ -108,6 +108,7 @@ def _aggregate_bis(rows: list[BisRow]) -> dict[str, list[BisCandidateOut]]:
             acc[row.item_id] = BisCandidateOut(
                 item_id=row.item_id,
                 item_name=row.item_name,
+                icon_url=row.icon_url,
                 count=row.count,
                 total_sample=row.total_sample,
                 source_type=row.source_type,

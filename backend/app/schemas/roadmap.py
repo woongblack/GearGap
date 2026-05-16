@@ -13,6 +13,7 @@ class DropSourceOut(BaseModel):
 class BisCandidateOut(BaseModel):
     item_id: int
     item_name: str  # COALESCE(items.name, ssip.item_name)
+    icon_url: Optional[str] = None
     count: int
     total_sample: int  # 항상 50 (Murlok 기준)
     source_type: Literal["drop", "unknown"]
