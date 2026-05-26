@@ -232,43 +232,42 @@ HTTP로 로드맵 조회 가능.
 
 ---
 
-## 세션 8 — 마무리: 배포 + 검증 + 폴리싱
+## 세션 8/9 — 마무리: 배포 + 검증 (진행 중)
 
 ### 목표
 실제 사용자(우선 본인)가 인터넷으로 접근 가능.
 
 ### 배포 스택 (확정)
 - Frontend: Vercel
-- Backend: Render (또는 GCP Cloud Run)
-- DB: Supabase (SQLite → PostgreSQL 마이그레이션)
+- Backend: Render
+- DB: Supabase PostgreSQL ✅ 완료
 
-### 배포 체크리스트 (순서 엄수)
+### 배포 체크리스트
 
-#### 1단계: Supabase 셋업
-- [ ] Supabase 프로젝트 생성
-- [ ] DATABASE_URL → Supabase connection string으로 교체
-- [ ] `alembic upgrade head` (Postgres 대상)
+#### 1단계: Supabase 셋업 ✅ 완료 (2026-05-27)
+- [x] Supabase 프로젝트 생성
+- [x] DATABASE_URL → `postgresql+psycopg://` 형식으로 교체
+- [x] `alembic upgrade head` — migration 6개 적용 완료
 
-#### 2단계: 데이터 재적재 (순서 중요)
-- [ ] `run_raidbots_ingestion.py` — contents / encounters / items / drop_sources
-- [ ] `run_murlok_ingestion.py` — spec_slot_item_popularity 1,449행
-- [ ] `fetch_item_icons.py` — icon_url 432개 (~2분, Blizzard API)
-- [ ] `seed_content_name_kr.py` — 던전/레이드 한글명 15개
-- [ ] `seed_encounter_name_kr.py` — 레이드 넴드 한글명 9개
-- [ ] patch_versions 수동 INSERT (11.1.5 또는 현재 패치)
+#### 2단계: 데이터 재적재 ✅ 완료 (2026-05-27)
+- [x] `insert_patch_version.py` — 12.0.5 (raidbots 전에 선행 필요)
+- [x] `run_raidbots_ingestion.py` — contents 16, encounters 56, items 432, drops 447
+- [x] `run_murlok_ingestion.py` — spec_slot_item_popularity 1,408행
+- [x] `fetch_item_icons.py` — icon_url 432/432 OK
+- [x] `seed_content_name_kr.py` — 15개
+- [x] `seed_encounter_name_kr.py` — 9개
 
-> ⚠️ SQLite(geargap_dev.db)는 로컬 전용. Supabase 전환 시 모든 데이터 재적재 필수.
+#### 3단계: 서비스 배포 (세션 9)
+- [ ] Render — FastAPI 서비스 (Dockerfile 있음, PORT 자동 주입)
+  - 환경변수: DATABASE_URL, BLIZZARD_CLIENT_ID/SECRET, RAIDBOTS_HASH, CURRENT_PATCH_VERSION
+- [ ] Vercel — 프론트엔드 (VITE_API_URL=Render URL)
+- [ ] CORS 확인 — config.py에 geargap.app + *.vercel.app 이미 포함 ✅
 
-#### 3단계: 서비스 배포
-- [ ] Render — FastAPI 서비스 (Dockerfile 있음)
-- [ ] Vercel — 프론트엔드 (VITE_API_URL 환경변수 설정)
-- [ ] CORS — allow_origins에 geargap.app + vercel.app 추가 확인
-
-#### 4단계: 자동화
+#### 4단계: 자동화 (세션 9)
 - [ ] GitHub Actions 크론: Murlok ingestion 1일 1회
 - [ ] Render keep-alive ping 14분마다 (무료 플랜 sleep 방지)
 
-#### 5단계: 검증
+#### 5단계: 검증 (세션 9)
 - [ ] 본인 캐릭터로 End-to-End 검증 (검색 → 아이콘 → 드롭처 한글명)
 - [ ] 배포 URL 공유 가능 상태 확인
 
@@ -366,3 +365,5 @@ HTTP로 로드맵 조회 가능.
 □ 끝나는 신호 정의
 □ 세션 끝나면 다음 세션 시작점 메모 업데이트
 ```
+
+### "2026-05-24 — 세션 8 1단계 완료: Supabase 프로젝트 생성, GitHub 연결, DATABASE_URL 확보

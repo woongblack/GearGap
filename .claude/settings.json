@@ -1,17 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run:*)",
-      "Bash(npm install:*)",
-      "Bash(npm ci:*)",
-      "Bash(uvicorn:*)",
-      "Bash(pip install:*)",
-      "Bash(pip list:*)",
-      "Bash(python -m venv:*)",
-      "Bash(python -c:*)",
-      "Bash(python -m pytest:*)",
-      "Bash(find . -name:*)",
-      "Bash(ls:*)"
+      "Bash(uvicorn *)",
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run lint)",
+      "Bash(npm run typecheck)",
+      "Bash(npm install)",
+      "Bash(npm install *)",
+      "Bash(npm ci)",
+      "Bash(pip install *)",
+      "Bash(pip list)",
+      "Bash(pip list *)",
+      "Bash(python -m venv *)",
+      "Bash(python -m pytest)",
+      "Bash(python -m pytest *)"
     ]
   },
   "env": {

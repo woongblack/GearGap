@@ -35,10 +35,3 @@ backend/*.db
 
 # Claude Code (로컬 설정만 제외, rules/settings.json은 추적)
 .claude/settings.local.json
-
-# Markdown (README.md, CLAUDE.md, .claude/rules, sessions 제외)
-*.md
-!README.md
-!CLAUDE.md
-!.claude/**/*.md
-!sessions/*.md
