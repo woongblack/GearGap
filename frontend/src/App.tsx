@@ -76,7 +76,7 @@ function LoadingScreenWrapper() {
       })
       .catch(err => {
         navigate('/errors', {
-          state: { message: err.message },
+          state: { message: err.message, charName, realm },
           replace: true,
         });
       });

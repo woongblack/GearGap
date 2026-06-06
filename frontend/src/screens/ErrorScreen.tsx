@@ -1,65 +1,74 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ErrorCard from '../components/common/ErrorCard';
-import type { ErrorCase } from '../components/common/ErrorCard';
-
-const ERROR_CASES: ErrorCase[] = [
-  {
-    kind: 'notfound',
-    code: '404',
-    title: 'Character Not Found',
-    desc: '아즈모단 캐릭터를 아즈샤라 서버에서 찾을 수 없습니다. 이름이나 서버가 맞는지 확인해주세요. 캐릭터를 최근에 서버 이전했거나 이름을 변경한 경우, 전투정보실 갱신에 시간이 걸릴 수 있습니다.',
-    primary: { label: '다른 캐릭터 검색', action: 'search' },
-    accent: 'gold'
-  },
-  {
-    kind: 'api',
-    code: '503',
-    title: 'Blizzard API Timeout',
-    desc: '블리자드 서버에서 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요.',
-    primary: { label: '다시 시도 (Retry)', action: 'retry' },
-    secondary: { label: '메인으로', action: 'search' },
-    accent: 'crimson'
-  },
-  {
-    kind: 'unsupported',
-    code: '422',
-    title: 'Level 80 Required',
-    desc: '현재 만렙(80) 캐릭터만 분석을 지원합니다. 레벨업 중인 캐릭터의 경우 엔드게임 데이터(1% 상위) 표본과 비교할 수 없습니다.',
-    primary: { label: '뒤로 가기', action: 'search' },
-    accent: 'steel'
-  }
-];
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function ErrorScreen() {
   const navigate = useNavigate();
-  const [caseIdx, setCaseIdx] = useState(0);
+  const location = useLocation();
+  const { message, charName, realm } = (location.state as {
+    message?: string;
+    charName?: string;
+    realm?: string;
+  }) ?? {};
 
-  function handleAction(action: string) {
-    if (action === 'search') {
-      navigate('/');
-    } else if (action === 'retry') {
-      // For now, simulate retry success by going to analysis
-      navigate('/c/azshara/아즈모단');
+  function title() {
+    if (!message) return '오류가 발생했습니다';
+    if (message.includes('찾을 수 없')) return 'Character Not Found';
+    if (message.includes('시간 초과') || message.includes('Timeout')) return 'Blizzard API Timeout';
+    if (message.includes('힐러') || message.includes('탱커') || message.includes('DPS')) return '미지원 스펙';
+    return '오류가 발생했습니다';
+  }
+
+  function desc() {
+    if (!message) return '알 수 없는 오류입니다. 잠시 후 다시 시도해주세요.';
+    if (message.includes('찾을 수 없')) {
+      const who = charName ? `${charName} 캐릭터` : '해당 캐릭터';
+      const where = realm ? ` (${realm} 서버)` : '';
+      return `${who}를${where} 찾을 수 없습니다. 이름이나 서버가 맞는지 확인해주세요. 최근 서버 이전이나 이름 변경 시 전투정보실 갱신에 시간이 걸릴 수 있습니다.`;
     }
+    if (message.includes('시간 초과') || message.includes('Timeout')) {
+      return '블리자드 서버에서 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요.';
+    }
+    if (message.includes('힐러') || message.includes('탱커') || message.includes('DPS')) {
+      return 'DPS 스펙만 지원합니다. 힐러/탱커 캐릭터는 현재 지원하지 않습니다.';
+    }
+    return message;
   }
 
   return (
-    <div className="page-enter" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <ErrorCard c={ERROR_CASES[caseIdx]} onAction={handleAction} />
-      
-      <div style={{ marginTop: 40, display: 'flex', gap: 8 }}>
-        {ERROR_CASES.map((_, i) => (
-          <button key={i}
-            onClick={() => setCaseIdx(i)}
-            style={{
-              width: 8, height: 8, borderRadius: '50%',
-              background: i === caseIdx ? 'var(--gold)' : 'var(--border)',
-              border: 'none', cursor: 'pointer', padding: 0
-            }}
-            aria-label={`Show error case ${i + 1}`}
-          />
-        ))}
+    <div className="page-enter" style={{
+      minHeight: '80vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 24,
+    }}>
+      <div style={{
+        background: 'var(--bg-card)', border: '1px solid var(--border)',
+        borderRadius: 4, padding: '40px 48px', maxWidth: 520, width: '100%',
+        textAlign: 'center',
+      }}>
+        <div style={{
+          fontFamily: 'JetBrains Mono, monospace', fontSize: 11,
+          color: 'var(--text-mute)', letterSpacing: '0.16em',
+          textTransform: 'uppercase', marginBottom: 16,
+        }}>
+          {message?.includes('찾을 수 없') ? '404' : message?.includes('시간 초과') ? '502' : 'Error'}
+        </div>
+        <h2 style={{
+          fontFamily: 'Cinzel, serif', fontSize: 22, color: 'var(--gold)',
+          marginBottom: 16,
+        }}>
+          {title()}
+        </h2>
+        <p style={{
+          fontSize: 14, color: 'var(--text-dim)', lineHeight: 1.7,
+          marginBottom: 32,
+        }}>
+          {desc()}
+        </p>
+        <button
+          onClick={() => navigate('/')}
+          className="search-btn"
+          style={{ width: '100%', justifyContent: 'center' }}
+        >
+          다른 캐릭터 검색
+        </button>
       </div>
     </div>
   );

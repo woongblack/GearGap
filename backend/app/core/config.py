@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "https://geargap.app",
-        "https://*.vercel.app",
+        "https://gear-gap-two.vercel.app",
     ]
 
     # Admin
