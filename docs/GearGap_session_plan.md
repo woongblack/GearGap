@@ -272,9 +272,9 @@ HTTP로 로드맵 조회 가능.
   - 이슈: Supabase DB 복원 중 연결 실패 → 복원 후 정상화
 - [x] Render keep-alive — cold start 감수하기로 결정 (무료 플랜)
 
-#### 5단계: 검증 (미완)
-- [ ] 본인 캐릭터로 End-to-End 검증 (검색 → 아이콘 → 드롭처 한글명)
-- [ ] 배포 URL 공유 가능 상태 확인
+#### 5단계: 검증 ✅ 완료 (2026-06-06)
+- [x] 본인 캐릭터로 End-to-End 검증 (검색 → 아이콘 → 드롭처 한글명) — 200 OK 확인
+- [x] 배포 URL 공유 가능 상태 확인 — https://gear-gap-two.vercel.app
 
 ### 세션 중 추가 작업 (2026-06-06)
 - mock Recent Searches → localStorage 기반 실제 검색 기록으로 교체
