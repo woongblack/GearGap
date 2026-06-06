@@ -28,6 +28,9 @@ class Settings(BaseSettings):
         "https://*.vercel.app",
     ]
 
+    # Admin
+    ADMIN_API_KEY: str = ""
+
     # Phase 2
     ANTHROPIC_API_KEY: str = ""
 
