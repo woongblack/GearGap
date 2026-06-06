@@ -101,7 +101,11 @@ async def get_character_roadmap(
         )
 
         if equipment_raw:
-            upsert_equipment(session, character.id, parse_equipment(equipment_raw))
+            try:
+                upsert_equipment(session, character.id, parse_equipment(equipment_raw))
+            except Exception as e:
+                session.rollback()
+                raise HTTPException(status_code=500, detail="장비 데이터 저장 중 오류가 발생했어요") from e
 
     # class_name / spec_name 추출
     blizzard_raw = character.blizzard_raw or {}
