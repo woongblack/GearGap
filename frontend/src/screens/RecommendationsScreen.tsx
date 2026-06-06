@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import CharHeader from '../components/analysis/CharHeader';
 import WeightControls, { useWeights, WEIGHT_DEFAULTS } from '../components/common/WeightControls';
 import ComparisonTable from '../components/common/ComparisonTable';
 import type { RowData } from '../components/common/ComparisonTable';
@@ -119,7 +118,6 @@ export default function RecommendationsScreen() {
           <span className="sep">/</span>
           <span>{CHAR.name}</span>
         </div>
-        <CharHeader char={CHAR} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '8px 0 6px' }}>
