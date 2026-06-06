@@ -72,10 +72,10 @@ def get_bis_rows(
                 COALESCE(e.name_kr, e.name)   AS encounter_name,
                 ds.item_level  AS drop_item_level
             FROM spec_slot_item_popularity ssip
-            LEFT JOIN items i        ON ssip.item_id    = i.id        AND i.is_active  = 1
-            LEFT JOIN drop_sources ds ON ds.item_id     = i.id        AND ds.is_active = 1
-            LEFT JOIN encounters e   ON ds.encounter_id = e.id        AND e.is_active  = 1
-            LEFT JOIN contents c     ON e.content_id    = c.id        AND c.is_active  = 1
+            LEFT JOIN items i        ON ssip.item_id    = i.id        AND i.is_active  = true
+            LEFT JOIN drop_sources ds ON ds.item_id     = i.id        AND ds.is_active = true
+            LEFT JOIN encounters e   ON ds.encounter_id = e.id        AND e.is_active  = true
+            LEFT JOIN contents c     ON e.content_id    = c.id        AND c.is_active  = true
             WHERE ssip.class_name   = :class_name
               AND ssip.spec_name    = :spec_name
               AND ssip.content_type = :content_type
