@@ -1,0 +1,30 @@
+name: Murlok BiS Ingestion
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 매일 KST 00:00 (UTC 15:00)
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install dependencies
+        run: pip install .
+
+      - name: Run Murlok ingestion
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/run_murlok_ingestion.py --sleep 10
