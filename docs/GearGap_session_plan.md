@@ -238,8 +238,8 @@ HTTP로 로드맵 조회 가능.
 실제 사용자(우선 본인)가 인터넷으로 접근 가능.
 
 ### 배포 스택 (확정)
-- Frontend: Vercel
-- Backend: Render
+- Frontend: Vercel → https://gear-gap-two.vercel.app
+- Backend: Render → https://geargap.onrender.com
 - DB: Supabase PostgreSQL ✅ 완료
 
 ### 배포 체크리스트
@@ -257,19 +257,30 @@ HTTP로 로드맵 조회 가능.
 - [x] `seed_content_name_kr.py` — 15개
 - [x] `seed_encounter_name_kr.py` — 9개
 
-#### 3단계: 서비스 배포 (세션 9)
-- [ ] Render — FastAPI 서비스 (Dockerfile 있음, PORT 자동 주입)
-  - 환경변수: DATABASE_URL, BLIZZARD_CLIENT_ID/SECRET, RAIDBOTS_HASH, CURRENT_PATCH_VERSION
-- [ ] Vercel — 프론트엔드 (VITE_API_URL=Render URL)
-- [ ] CORS 확인 — config.py에 geargap.app + *.vercel.app 이미 포함 ✅
+#### 3단계: 서비스 배포 ✅ 완료 (2026-06-06)
+- [x] Render — FastAPI 서비스 배포 완료, `/health` 200 확인
+  - 환경변수: DATABASE_URL, BLIZZARD_CLIENT_ID/SECRET, ADMIN_API_KEY 설정
+  - 이슈: `beautifulsoup4`, `lxml` pyproject.toml 누락 → 추가 완료
+- [x] Vercel — 프론트엔드 배포 완료 (VITE_API_URL=https://geargap.onrender.com)
+  - 이슈: `CharHeader` prop 타입 불일치 → 수정 완료
+- [x] CORS — `*.vercel.app` 패턴으로 정상 동작 확인
 
-#### 4단계: 자동화 (세션 9)
-- [ ] GitHub Actions 크론: Murlok ingestion 1일 1회
-- [ ] Render keep-alive ping 14분마다 (무료 플랜 sleep 방지)
+#### 4단계: 자동화 ✅ 완료 (2026-06-06)
+- [x] GitHub Actions 크론: Murlok ingestion 1일 1회 (KST 00:00)
+  - Secret: `DATABASE_URL` (Session Pooler, 포트 5432)
+  - 이슈: setuptools flat-layout → `requirements.txt` 방식으로 변경
+  - 이슈: Supabase DB 복원 중 연결 실패 → 복원 후 정상화
+- [x] Render keep-alive — cold start 감수하기로 결정 (무료 플랜)
 
-#### 5단계: 검증 (세션 9)
+#### 5단계: 검증 (미완)
 - [ ] 본인 캐릭터로 End-to-End 검증 (검색 → 아이콘 → 드롭처 한글명)
 - [ ] 배포 URL 공유 가능 상태 확인
+
+### 세션 중 추가 작업 (2026-06-06)
+- mock Recent Searches → localStorage 기반 실제 검색 기록으로 교체
+- Admin 엔드포인트 API Key 인증 추가 (`X-Admin-Key` 헤더)
+- 미사용 컴포넌트 삭제: `MetaDrawer.tsx`, `MetaRibbon.tsx`
+- setuptools 패키지 디스커버리 설정 (`[tool.setuptools.packages.find]`, `[build-system]`)
 
 ### 작업
 1. **백엔드 배포**
