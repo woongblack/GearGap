@@ -1,4 +1,19 @@
 import { useState, useEffect } from 'react';
+
+const RECENT_KEY = 'geargap_recent';
+
+interface RecentSearch { name: string; realm: string; searchedAt: string; }
+
+function saveRecentSearch(name: string, realm: string) {
+  const prev: RecentSearch[] = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
+  const filtered = prev.filter(r => !(r.name === name && r.realm === realm));
+  const next = [{ name, realm, searchedAt: new Date().toISOString() }, ...filtered].slice(0, 5);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+}
+
+export function loadRecentSearches(): RecentSearch[] {
+  return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
+}
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import AppShell from './components/AppShell';
 import LandingScreen from './screens/LandingScreen';
@@ -53,6 +68,7 @@ function LoadingScreenWrapper() {
 
     api.getRoadmap(realm, charName)
       .then(roadmap => {
+        saveRecentSearch(charName, realm);
         navigate(`/c/${encodeURIComponent(realm)}/${encodeURIComponent(charName)}`, {
           state: { roadmap },
           replace: true,
