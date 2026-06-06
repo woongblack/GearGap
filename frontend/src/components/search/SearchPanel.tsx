@@ -28,7 +28,7 @@ export default function SearchPanel({ onSubmit }: SearchPanelProps) {
             placeholder="캐릭터명을 입력하세요"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            autoComplete="off"
+            autoComplete="new-password"
           />
         </label>
         <label className="field">
