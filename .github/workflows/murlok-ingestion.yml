@@ -22,7 +22,13 @@ jobs:
           cache-dependency-path: backend/pyproject.toml
 
       - name: Install dependencies
-        run: pip install .
+        run: |
+          python - <<'EOF'
+          import tomllib, subprocess, sys
+          with open("pyproject.toml", "rb") as f:
+              deps = tomllib.load(f)["project"]["dependencies"]
+          subprocess.run([sys.executable, "-m", "pip", "install"] + deps, check=True)
+          EOF
 
       - name: Run Murlok ingestion
         env:
