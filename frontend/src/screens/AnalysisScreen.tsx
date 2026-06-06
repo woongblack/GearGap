@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import type { ApiRoadmapOut, ApiSlotRoadmapOut } from '../api/types';
 import CharHeader from '../components/analysis/CharHeader';
+import { api } from '../api/client';
 
 const SLOT_LABELS: Record<string, string> = {
   head: 'Head', neck: 'Neck', shoulder: 'Shoulder', back: 'Back', chest: 'Chest',
@@ -94,14 +95,24 @@ export default function AnalysisScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const { realm, name } = useParams<{ realm: string; name: string }>();
-  const roadmap = (location.state as { roadmap?: ApiRoadmapOut } | null)?.roadmap;
+  const stateRoadmap = (location.state as { roadmap?: ApiRoadmapOut } | null)?.roadmap;
+  const [roadmap, setRoadmap] = useState<ApiRoadmapOut | null>(stateRoadmap ?? null);
+  const [loading, setLoading] = useState(!stateRoadmap);
 
   useEffect(() => {
-    if (!roadmap) {
-      navigate('/', { replace: true });
-    }
-  }, [roadmap, navigate]);
+    if (stateRoadmap) return;
+    if (!realm || !name) { navigate('/'); return; }
+    api.getRoadmap(realm, name)
+      .then(data => setRoadmap(data))
+      .catch(err => navigate('/errors', { state: { message: err.message, charName: name, realm } }))
+      .finally(() => setLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: 'var(--text-dim)' }}>
+      Loading…
+    </div>
+  );
 
   if (!roadmap) return null;
 
