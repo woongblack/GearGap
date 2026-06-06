@@ -9,7 +9,7 @@ from typing import Sequence, Union
 from alembic import op
 
 revision: str = '007_drop_item_id_fk'
-down_revision: Union[str, None] = '006_add_name_kr_to_encounters'
+down_revision: Union[str, None] = 'b7d4c2e91a05'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
